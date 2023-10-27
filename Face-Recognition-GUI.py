@@ -49,7 +49,7 @@ def Add_Face_Button_command():
 
             # Save the captured image into the datasets folder
             cv2.imwrite(rawImagesPath + "/User." + str(face_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
-            cv2.imshow('image', img)
+            cv2.imshow('Face Capture', img)
 
         k = cv2.waitKey(100) & 0xff # Press 'ESC' for exiting video
         if k == 27:
@@ -143,7 +143,7 @@ def Recognize_Faces_Button_command():
             cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
             cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)  
     
-        cv2.imshow('camera', img) 
+        cv2.imshow('Face Recognizer', img) 
 
         k = cv2.waitKey(10) & 0xff # Press 'ESC' for exiting video
         if k == 27:
