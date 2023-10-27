@@ -12,7 +12,10 @@ if not os.path.exists(trainedPath):
 
 faceDetectionCascade = cv2.CascadeClassifier('cascades/haarcascade_frontalface_default.xml');
 
+print('\n [START] Welcome to OpenCV Face Recognition Program!\n')
+
 def capture():
+    # Initialize and start realtime video capture
     cam = cv2.VideoCapture(0)
     cam.set(3, 640) # set video width
     cam.set(4, 480) # set video height
@@ -21,13 +24,13 @@ def capture():
     face_id = input('\nEnter a User ID = ')
 
     print("\n [INFO] Initializing face capture. Look at the camera and wait ...")
+
     # Initialize individual sampling face count
     count = 0
 
     while(True):
 
         ret, img = cam.read()
-        #img = cv2.flip(img, -1) # flip video image vertically
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = faceDetectionCascade.detectMultiScale(gray, 1.3, 5)
 
@@ -38,7 +41,6 @@ def capture():
 
             # Save the captured image into the datasets folder
             cv2.imwrite(rawImagesPath + "/User." + str(face_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
-
             cv2.imshow('image', img)
 
         k = cv2.waitKey(100) & 0xff # Press 'ESC' for exiting video
@@ -47,8 +49,9 @@ def capture():
         elif count >= 30: # Take 30 face sample and stop video
             break
 
-    # Do a bit of cleanup
     print(" [INFO] Face data captured.\n")
+
+    # Do a bit of cleanup
     cam.release()
     cv2.destroyAllWindows()
 
@@ -77,31 +80,31 @@ def train():
         return faceSamples,ids
 
     print ("\n [INFO] Training faces. It will take a few seconds. Please Wait ...")
-    faces,ids = getImagesAndLabels(rawImagesPath)
+
+    faces, ids = getImagesAndLabels(rawImagesPath)
     recognizer.train(faces, np.array(ids))
+    recognizer.write(trainedPath + '/trained.yml')
 
-    # Save the model into trainer/trainer.yml
-    recognizer.write(trainedPath + '/trained.yml') # recognizer.save() worked on Mac, but not on Pi
-
-    # Print the numer of faces trained and end program
+    # Print the numer of faces trained
     print(" [INFO] {0} faces trained.\n".format(len(np.unique(ids))))
 
 def recognize():
     print("\n [INFO] Recognizing Faces. Use ESC to Close the Recognizer Window.")
+
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     recognizer.read(trainedPath + '/trained.yml')
 
     font = cv2.FONT_HERSHEY_SIMPLEX
 
-    #iniciate id counter
+    # iniciate id counter
     id = 0
 
-    # names related to ids: example ==> Marcelo: id=1,  etc
+    # names related to ids
     names = ['None', 'Akshat', 'Hemant', 'Vidhan', 'Z', 'W']
 
     # Initialize and start realtime video capture
     cam = cv2.VideoCapture(0)
-    cam.set(3, 640) # set video widht
+    cam.set(3, 640) # set video width
     cam.set(4, 480) # set video height
 
     # Define min window size to be recognized as a face
@@ -110,11 +113,8 @@ def recognize():
 
     while True:
 
-        ret, img =cam.read()
-        #img = cv2.flip(img, -1) # Flip vertically
-
-        gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-
+        ret, img = cam.read()
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = faceDetectionCascade.detectMultiScale( 
             gray,
             scaleFactor = 1.2,
@@ -123,9 +123,7 @@ def recognize():
            )
 
         for(x,y,w,h) in faces:
-
             cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
-
             id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
 
             # Check if confidence is less them 100 ==> "0" is perfect match 
@@ -139,20 +137,22 @@ def recognize():
             cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
             cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)  
     
-        cv2.imshow('camera',img) 
+        cv2.imshow('camera', img) 
 
         k = cv2.waitKey(10) & 0xff # Press 'ESC' for exiting video
         if k == 27:
             break
 
-    # Do a bit of cleanup
     print(" [INFO] Recognizer Window closed.\n")
+
+    # Do a bit of cleanup
     cam.release()
     cv2.destroyAllWindows()
 
 run = 0
 while run != '4':
-    run = input('Enter A Choice:\n1. Add Face Data\n2. Train Faces\n3. Recognize Faces\n4. Exit\n\nChoice = ')
+    print('Enter A Choice:\n1. Add Face Data\n2. Train Faces\n3. Recognize Faces\n4. Exit\n')
+    run = input('Choice = ')
     if run == '1':
         capture()
     elif run == '2':
@@ -160,6 +160,6 @@ while run != '4':
     elif run == '3':
         recognize()
     elif run == '4':
-        print("\n [INFO] Exiting Program.\n")
+        print("\n [END] Exiting Program.\n")
     else:
-        print("\n [INFO] Choice Invalid! Please Retry!\n")
+        print("\n [ERROR] Choice Invalid! Please Retry!\n")
