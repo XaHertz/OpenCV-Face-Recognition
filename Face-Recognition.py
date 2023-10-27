@@ -6,9 +6,9 @@ import os
 rawImagesPath = "dataset.images"
 trainedPath = "dataset.trained"
 if not os.path.exists(rawImagesPath):
-   os.makedirs(rawImagesPath)
+    os.makedirs(rawImagesPath)
 if not os.path.exists(trainedPath):
-   os.makedirs(trainedPath)
+    os.makedirs(trainedPath)
 
 faceDetectionCascade = cv2.CascadeClassifier('cascades/haarcascade_frontalface_default.xml');
 

@@ -1,38 +1,193 @@
-from tkinter import *
-from PIL import Image, ImageTk
+import tkinter
+import tkinter.font
+import tkinter.messagebox
 import cv2
+import numpy as np
+from PIL import Image
+import os
 
-# create root window
-root = Tk()
+rawImagesPath = "dataset.images"
+trainedPath = "dataset.trained"
+if not os.path.exists(rawImagesPath):
+    os.makedirs(rawImagesPath)
+if not os.path.exists(trainedPath):
+    os.makedirs(trainedPath)
+
+faceDetectionCascade = cv2.CascadeClassifier('cascades/haarcascade_frontalface_default.xml');
+
+# Create root Window
+root = tkinter.Tk()
 root.title("Face Recognition")
 root.geometry('800x500')
+root.resizable(width=False, height=False)
 
-# Create a Label to capture the Video frames
-label = Label(root)
-label.grid(row=0, column=0)
+def Add_Face_Button_command():
+   # Initialize and start realtime video capture
+    cam = cv2.VideoCapture(0)
+    cam.set(3, 640) # set video width
+    cam.set(4, 480) # set video height
 
-# Trained XML file for detecting faces
-face_cascade = cv2.CascadeClassifier('cascades/haarcascade_frontalface_default.xml')
+    # For each person, enter one numeric face id
+    face_id = input('\nEnter a User ID = ')
 
-# capture frames from a camera
-cap = cv2.VideoCapture(0)
+    print("\n [INFO] Initializing face capture. Look at the camera and wait ...")
+    tkinter.messagebox.showinfo(title=None, message='Initializing face capture. Look at the camera and wait ...')
 
-# Define function to show frame
-def show_frames():
-   # Get the latest frame and convert into Image
-   cv2image = cv2.cvtColor(cap.read()[1],cv2.COLOR_BGR2RGB)
-   img = Image.fromarray(cv2image)
+    # Initialize individual sampling face count
+    count = 0
 
-   # Convert image to PhotoImage
-   imgtk = ImageTk.PhotoImage(image = img)
-   label.imgtk = imgtk
-   label.configure(image=imgtk)
+    while(True):
 
-   # Repeat after an interval to capture continiously
-   label.after(20, show_frames)
+        ret, img = cam.read()
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = faceDetectionCascade.detectMultiScale(gray, 1.3, 5)
 
-show_frames()
+        for (x,y,w,h) in faces:
+
+            cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)     
+            count += 1
+
+            # Save the captured image into the datasets folder
+            cv2.imwrite(rawImagesPath + "/User." + str(face_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
+            cv2.imshow('image', img)
+
+        k = cv2.waitKey(100) & 0xff # Press 'ESC' for exiting video
+        if k == 27:
+            break
+        elif count >= 30: # Take 30 face sample and stop video
+            break
+
+    print(" [INFO] Face data captured.\n")
+    tkinter.messagebox.showinfo(title=None, message='Face Data Captured.')
+
+    # Do a bit of cleanup
+    cam.release()
+    cv2.destroyAllWindows()
+
+def Train_Faces_Button_command():
+    recognizer = cv2.face.LBPHFaceRecognizer_create()
+
+    # function to get the images and label data
+    def getImagesAndLabels(path):
+
+        imagePaths = [os.path.join(path,f) for f in os.listdir(path)]     
+        faceSamples=[]
+        ids = []
+
+        for imagePath in imagePaths:
+
+            PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
+            img_numpy = np.array(PIL_img,'uint8')
+
+            id = int(os.path.split(imagePath)[-1].split(".")[1])
+            faces = faceDetectionCascade.detectMultiScale(img_numpy)
+
+            for (x,y,w,h) in faces:
+                faceSamples.append(img_numpy[y:y+h,x:x+w])
+                ids.append(id)
+
+        return faceSamples,ids
+
+    faces, ids = getImagesAndLabels(rawImagesPath)
+    recognizer.train(faces, np.array(ids))
+    recognizer.write(trainedPath + '/trained.yml')
+
+    # Print the numer of faces trained
+    tkinter.messagebox.showinfo(title='Training Completed', message='Training Completed. {0} Faces Trained.'.format(len(np.unique(ids))))
+
+def Recognize_Faces_Button_command():
+    recognizer = cv2.face.LBPHFaceRecognizer_create()
+    recognizer.read(trainedPath + '/trained.yml')
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+
+    # iniciate id counter
+    id = 0
+
+    # names related to ids
+    names = ['None', 'Akshat', 'Hemant', 'Vidhan', 'Z', 'W']
+
+    # Initialize and start realtime video capture
+    cam = cv2.VideoCapture(0)
+    cam.set(3, 640) # set video width
+    cam.set(4, 480) # set video height
+
+    # Define min window size to be recognized as a face
+    minW = 0.1*cam.get(3)
+    minH = 0.1*cam.get(4)
+
+    while True:
+
+        ret, img = cam.read()
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = faceDetectionCascade.detectMultiScale( 
+            gray,
+            scaleFactor = 1.2,
+            minNeighbors = 5,
+            minSize = (int(minW), int(minH)),
+           )
+
+        for(x,y,w,h) in faces:
+            cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
+            id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
+
+            # Check if confidence is less them 100 ==> "0" is perfect match 
+            if (confidence < 100):
+                id = names[id]
+                confidence = "  {0}%".format(round(100 - confidence))
+            else:
+                id = "unknown"
+                confidence = "  {0}%".format(round(100 - confidence))
+        
+            cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
+            cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)  
+    
+        cv2.imshow('camera', img) 
+
+        k = cv2.waitKey(10) & 0xff # Press 'ESC' for exiting video
+        if k == 27:
+            break
+
+    # Do a bit of cleanup
+    cam.release()
+    cv2.destroyAllWindows()
+
+Title_Label=tkinter.Label(root)
+Title_Label["font"] = tkinter.font.Font(size=40)
+Title_Label["fg"] = "#333333"
+Title_Label["justify"] = "center"
+Title_Label["text"] = "OpenCV Face Recognition"
+Title_Label.place (x=60, y=40, width=680, height=80)
+
+Add_Face_Button=tkinter.Button(root)
+Add_Face_Button["bg"] = "#f0f0f0"
+ft = tkinter.font.Font(family='Times',size=10)
+Add_Face_Button["font"] = ft
+Add_Face_Button["fg"] = "#000000"
+Add_Face_Button["justify"] = "center"
+Add_Face_Button["text"] = "Add Face Data"
+Add_Face_Button.place(x=300,y=200,width=200,height=30)
+Add_Face_Button["command"] = Add_Face_Button_command
+
+Train_Faces_Button=tkinter.Button(root)
+Train_Faces_Button["bg"] = "#f0f0f0"
+ft = tkinter.font.Font(family='Times',size=10)
+Train_Faces_Button["font"] = ft
+Train_Faces_Button["fg"] = "#000000"
+Train_Faces_Button["justify"] = "center"
+Train_Faces_Button["text"] = "Train Faces"
+Train_Faces_Button.place(x=300,y=260,width=200,height=30)
+Train_Faces_Button["command"] = Train_Faces_Button_command
+
+Recognize_Faces_Button=tkinter.Button(root)
+Recognize_Faces_Button["bg"] = "#f0f0f0"
+ft = tkinter.font.Font(family='Times',size=10)
+Recognize_Faces_Button["font"] = ft
+Recognize_Faces_Button["fg"] = "#000000"
+Recognize_Faces_Button["justify"] = "center"
+Recognize_Faces_Button["text"] = "Recognize Faces"
+Recognize_Faces_Button.place(x=300,y=320,width=200,height=30)
+Recognize_Faces_Button["command"] = Recognize_Faces_Button_command
 
 # Execute Tkinter
 root.mainloop()
-
