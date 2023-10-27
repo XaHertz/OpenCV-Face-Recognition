@@ -1,0 +1,4 @@
+dist/
+build/
+dataset.images/
+dataset.trained/
