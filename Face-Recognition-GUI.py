@@ -95,6 +95,8 @@ def Train_Faces_Button_command():
     tkinter.messagebox.showinfo(title='Training Completed', message='Training Completed. {0} Faces Trained.'.format(len(np.unique(ids))))
 
 def Recognize_Faces_Button_command():
+    tkinter.messagebox.showinfo(title='Starting Recognizer', message='When you are ready press OK to start the Recognizer. When you are done use the ESC Button to Close the Recognizer Window.')
+
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     recognizer.read(trainedPath + '/trained.yml')
 
