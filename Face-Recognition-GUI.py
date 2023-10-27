@@ -19,7 +19,7 @@ faceDetectionCascade = cv2.CascadeClassifier('cascades/haarcascade_frontalface_d
 # Create root Window
 root = tkinter.Tk()
 root.title("Face Recognition")
-root.geometry('800x500')
+root.geometry('400x400')
 root.resizable(width=False, height=False)
 
 def Add_Face_Button_command():
@@ -153,41 +153,45 @@ def Recognize_Faces_Button_command():
     cam.release()
     cv2.destroyAllWindows()
 
-Title_Label=tkinter.Label(root)
-Title_Label["font"] = tkinter.font.Font(size=40)
-Title_Label["fg"] = "#333333"
-Title_Label["justify"] = "center"
-Title_Label["text"] = "OpenCV Face Recognition"
-Title_Label.place (x=60, y=40, width=680, height=80)
+Title_Label_CV=tkinter.Label(root)
+Title_Label_CV["font"] = tkinter.font.Font(size=40)
+Title_Label_CV["fg"] = "#333333"
+Title_Label_CV["justify"] = "center"
+Title_Label_CV["text"] = "OpenCV"
+Title_Label_CV.place (x=10, y=40, width=380, height=60)
+
+Title_Label_FR=tkinter.Label(root)
+Title_Label_FR["font"] = tkinter.font.Font(size=24)
+Title_Label_FR["fg"] = "#333333"
+Title_Label_FR["justify"] = "center"
+Title_Label_FR["text"] = "Face Recognition"
+Title_Label_FR.place (x=10, y=100, width=380, height=60)
 
 Add_Face_Button=tkinter.Button(root)
 Add_Face_Button["bg"] = "#f0f0f0"
-ft = tkinter.font.Font(family='Times',size=10)
-Add_Face_Button["font"] = ft
+Add_Face_Button["font"] = tkinter.font.Font(size=10)
 Add_Face_Button["fg"] = "#000000"
 Add_Face_Button["justify"] = "center"
 Add_Face_Button["text"] = "Add Face Data"
-Add_Face_Button.place(x=300,y=200,width=200,height=30)
+Add_Face_Button.place(x=100, y=210, width=200, height=30)
 Add_Face_Button["command"] = Add_Face_Button_command
 
 Train_Faces_Button=tkinter.Button(root)
 Train_Faces_Button["bg"] = "#f0f0f0"
-ft = tkinter.font.Font(family='Times',size=10)
-Train_Faces_Button["font"] = ft
+Train_Faces_Button["font"] = tkinter.font.Font(size=10)
 Train_Faces_Button["fg"] = "#000000"
 Train_Faces_Button["justify"] = "center"
 Train_Faces_Button["text"] = "Train Faces"
-Train_Faces_Button.place(x=300,y=260,width=200,height=30)
+Train_Faces_Button.place(x=100, y=260, width=200, height=30)
 Train_Faces_Button["command"] = Train_Faces_Button_command
 
 Recognize_Faces_Button=tkinter.Button(root)
 Recognize_Faces_Button["bg"] = "#f0f0f0"
-ft = tkinter.font.Font(family='Times',size=10)
-Recognize_Faces_Button["font"] = ft
+Recognize_Faces_Button["font"] = tkinter.font.Font(size=10)
 Recognize_Faces_Button["fg"] = "#000000"
 Recognize_Faces_Button["justify"] = "center"
 Recognize_Faces_Button["text"] = "Recognize Faces"
-Recognize_Faces_Button.place(x=300,y=320,width=200,height=30)
+Recognize_Faces_Button.place(x=100, y=310, width=200, height=30)
 Recognize_Faces_Button["command"] = Recognize_Faces_Button_command
 
 # Execute Tkinter
