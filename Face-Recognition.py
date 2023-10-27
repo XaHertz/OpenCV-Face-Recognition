@@ -13,6 +13,7 @@ if not os.path.exists(trainedPath):
 faceDetectionCascade = cv2.CascadeClassifier('cascades/haarcascade_frontalface_default.xml');
 
 print('\n [START] Welcome to OpenCV Face Recognition Program!\n')
+userChoice = 0
 
 def capture():
     # Initialize and start realtime video capture
@@ -149,17 +150,16 @@ def recognize():
     cam.release()
     cv2.destroyAllWindows()
 
-run = 0
-while run != '4':
+while userChoice != '4':
     print('Enter A Choice:\n1. Add Face Data\n2. Train Faces\n3. Recognize Faces\n4. Exit\n')
-    run = input('Choice = ')
-    if run == '1':
+    userChoice = input('Choice = ')
+    if userChoice == '1':
         capture()
-    elif run == '2':
+    elif userChoice == '2':
         train()
-    elif run == '3':
+    elif userChoice == '3':
         recognize()
-    elif run == '4':
+    elif userChoice == '4':
         print("\n [END] Exiting Program.\n")
     else:
         print("\n [ERROR] Choice Invalid! Please Retry!\n")
