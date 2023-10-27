@@ -1,6 +1,7 @@
 import tkinter
 import tkinter.font
 import tkinter.messagebox
+import tkinter.simpledialog
 import cv2
 import numpy as np
 from PIL import Image
@@ -28,10 +29,9 @@ def Add_Face_Button_command():
     cam.set(4, 480) # set video height
 
     # For each person, enter one numeric face id
-    face_id = input('\nEnter a User ID = ')
+    face_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID for Face Capture (Example 0001, 0002)")
 
-    print("\n [INFO] Initializing face capture. Look at the camera and wait ...")
-    tkinter.messagebox.showinfo(title=None, message='Initializing face capture. Look at the camera and wait ...')
+    tkinter.messagebox.showinfo(title='Initializing Face Capture', message='When you are ready to start press OK and Look at the Camera.')
 
     # Initialize individual sampling face count
     count = 0
@@ -57,8 +57,7 @@ def Add_Face_Button_command():
         elif count >= 30: # Take 30 face sample and stop video
             break
 
-    print(" [INFO] Face data captured.\n")
-    tkinter.messagebox.showinfo(title=None, message='Face Data Captured.')
+    tkinter.messagebox.showinfo(title='Capture Complete', message='Face Data Captured Successfully.')
 
     # Do a bit of cleanup
     cam.release()
