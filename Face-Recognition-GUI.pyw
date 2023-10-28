@@ -1,11 +1,11 @@
+import os
+import cv2
+import numpy
 import tkinter
 import tkinter.font
 import tkinter.messagebox
 import tkinter.simpledialog
-import cv2
-import numpy as np
-from PIL import Image
-import os
+import PIL.Image
 
 rawImagesPath = "dataset.images"
 trainedPath = "dataset.trained"
@@ -28,8 +28,12 @@ def Add_Face_Button_command():
     cam.set(3, 640) # set video width
     cam.set(4, 480) # set video height
 
-    # For each person, enter one numeric face id
-    face_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID for Face Capture (Example 0001, 0002)")
+    # For each person, enter one numeric face id and name
+    face_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID for Face Capture (Example: 00, 01, 02, ...)")
+    id_name = tkinter.simpledialog.askstring(title="Enter User Name", prompt="Enter the Name of the User")
+    with open(trainedPath + '/names.txt', 'a') as names:
+        names.write(id_name)
+        names.write('\n')
 
     tkinter.messagebox.showinfo(title='Initializing Face Capture', message='When you are ready to start press OK and Look at the Camera.')
 
@@ -75,8 +79,8 @@ def Train_Faces_Button_command():
 
         for imagePath in imagePaths:
 
-            PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
-            img_numpy = np.array(PIL_img,'uint8')
+            PIL_img = PIL.Image.open(imagePath).convert('L') # convert it to grayscale
+            img_numpy = numpy.array(PIL_img,'uint8')
 
             id = int(os.path.split(imagePath)[-1].split(".")[1])
             faces = faceDetectionCascade.detectMultiScale(img_numpy)
@@ -88,11 +92,11 @@ def Train_Faces_Button_command():
         return faceSamples,ids
 
     faces, ids = getImagesAndLabels(rawImagesPath)
-    recognizer.train(faces, np.array(ids))
+    recognizer.train(faces, numpy.array(ids))
     recognizer.write(trainedPath + '/trained.yml')
 
     # Print the numer of faces trained
-    tkinter.messagebox.showinfo(title='Training Completed', message='Training Completed. {0} Faces Trained.'.format(len(np.unique(ids))))
+    tkinter.messagebox.showinfo(title='Training Completed', message='Training Completed. {0} Faces Trained.'.format(len(numpy.unique(ids))))
 
 def Recognize_Faces_Button_command():
     tkinter.messagebox.showinfo(title='Starting Recognizer', message='When you are ready press OK to start the Recognizer. When you are done use the ESC Button to Close the Recognizer Window.')
@@ -106,7 +110,8 @@ def Recognize_Faces_Button_command():
     id = 0
 
     # names related to ids
-    names = ['None', 'Akshat', 'Hemant', 'Vidhan', 'Z', 'W']
+    with open(trainedPath + '/names.txt', 'r') as file:
+        names = file.read().splitlines()
 
     # Initialize and start realtime video capture
     cam = cv2.VideoCapture(0)

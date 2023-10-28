@@ -1,7 +1,7 @@
-import cv2
-import numpy as np
-from PIL import Image
 import os
+import cv2
+import numpy
+import PIL.Image
 
 rawImagesPath = "dataset.images"
 trainedPath = "dataset.trained"
@@ -21,8 +21,12 @@ def capture():
     cam.set(3, 640) # set video width
     cam.set(4, 480) # set video height
 
-    # For each person, enter one numeric face id
-    face_id = input('\nEnter a User ID = ')
+    # For each person, enter one numeric face id and name
+    face_id = input('\nEnter an User ID for Face Capture (Example: 00, 01, 02, ...) : ')
+    id_name = input('Enter the Name of the User : ')
+    with open(trainedPath + '/names.txt', 'a') as names:
+        names.write(id_name)
+        names.write('\n')
 
     print("\n [INFO] Initializing face capture. Look at the camera and wait ...")
 
@@ -42,7 +46,7 @@ def capture():
 
             # Save the captured image into the datasets folder
             cv2.imwrite(rawImagesPath + "/User." + str(face_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
-            cv2.imshow('image', img)
+            cv2.imshow('Face Capture', img)
 
         k = cv2.waitKey(100) & 0xff # Press 'ESC' for exiting video
         if k == 27:
@@ -68,8 +72,8 @@ def train():
 
         for imagePath in imagePaths:
 
-            PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
-            img_numpy = np.array(PIL_img,'uint8')
+            PIL_img = PIL.Image.open(imagePath).convert('L') # convert it to grayscale
+            img_numpy = numpy.array(PIL_img,'uint8')
 
             id = int(os.path.split(imagePath)[-1].split(".")[1])
             faces = faceDetectionCascade.detectMultiScale(img_numpy)
@@ -83,11 +87,11 @@ def train():
     print ("\n [INFO] Training faces. It will take a few seconds. Please Wait ...")
 
     faces, ids = getImagesAndLabels(rawImagesPath)
-    recognizer.train(faces, np.array(ids))
+    recognizer.train(faces, numpy.array(ids))
     recognizer.write(trainedPath + '/trained.yml')
 
     # Print the numer of faces trained
-    print(" [INFO] {0} faces trained.\n".format(len(np.unique(ids))))
+    print(" [INFO] {0} faces trained.\n".format(len(numpy.unique(ids))))
 
 def recognize():
     print("\n [INFO] Recognizing Faces. Use ESC to Close the Recognizer Window.")
@@ -101,7 +105,8 @@ def recognize():
     id = 0
 
     # names related to ids
-    names = ['None', 'Akshat', 'Hemant', 'Vidhan', 'Z', 'W']
+    with open(trainedPath + '/names.txt', 'r') as file:
+        names = file.read().splitlines()
 
     # Initialize and start realtime video capture
     cam = cv2.VideoCapture(0)
@@ -138,7 +143,7 @@ def recognize():
             cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
             cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)  
     
-        cv2.imshow('camera', img) 
+        cv2.imshow('Face Recognizer', img) 
 
         k = cv2.waitKey(10) & 0xff # Press 'ESC' for exiting video
         if k == 27:
