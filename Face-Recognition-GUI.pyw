@@ -23,7 +23,7 @@ root.geometry('400x400')
 root.resizable(width=False, height=False)
 
 def Add_Face_Button_command():
-   # Initialize and start realtime video capture
+    # Initialize and start realtime video capture
     cam = cv2.VideoCapture(0)
     cam.set(3, 640) # set video width
     cam.set(4, 480) # set video height
