@@ -14,7 +14,7 @@ if not os.path.exists(rawImagesPath):
 if not os.path.exists(trainedPath):
     os.makedirs(trainedPath)
 
-faceDetectionCascade = cv2.CascadeClassifier('cascades/haarcascade_frontalface_default.xml');
+faceDetectionCascade = cv2.CascadeClassifier('cascades/haarcascade_frontalface_default.xml')
 
 # Create root Window
 root = tkinter.Tk()
