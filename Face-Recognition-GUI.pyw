@@ -88,7 +88,6 @@ def Train_Faces():
     tkinter.messagebox.showinfo(title='Training Completed', message='Training Completed. {0} Faces Trained.'.format(len(numpy.unique(ids))))
 
 def Recognize_Faces():
-    tkinter.messagebox.showinfo(title='Starting Recognizer', message='When you are ready press OK to start the Recognizer. When you are done use the ESC Button to Close the Recognizer Window.')
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     recognizer.read(trainedPath + '/trained.yml')
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -96,14 +95,10 @@ def Recognize_Faces():
     with open(trainedPath + '/names.txt', 'r') as file:
         names = file.read().splitlines()
     cam = cv2.VideoCapture(0)
-    cam.set(3, 640)
-    cam.set(4, 480)
-    minW = 0.1*cam.get(3)
-    minH = 0.1*cam.get(4)
-    while True:
+    def show_frames():
         ret, img = cam.read()
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        faces = faceDetectionCascade.detectMultiScale(gray, scaleFactor = 1.2, minNeighbors = 5, minSize = (int(minW), int(minH)))
+        faces = faceDetectionCascade.detectMultiScale(gray, scaleFactor = 1.2, minNeighbors = 5, minSize = (64, 48))
         for(x,y,w,h) in faces:
             cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
             id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
@@ -115,12 +110,13 @@ def Recognize_Faces():
                 confidence = "  {0}%".format(round(100 - confidence))
             cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
             cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)
-        cv2.imshow('Face Recognizer', img)
-        k = cv2.waitKey(10) & 0xff
-        if k == 27:
-            break
-    cam.release()
-    cv2.destroyAllWindows()
+        colored = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        imgx = PIL.Image.fromarray(colored)
+        imgtk = PIL.ImageTk.PhotoImage(image = imgx)
+        Camera_Window.imgtk = imgtk
+        Camera_Window.configure(image=imgtk)
+        Camera_Window.after(20, show_frames)
+    show_frames()
 
 Title_Label_CV = tkinter.Label(root)
 Title_Label_CV["font"] = tkinter.font.Font(size=40)
