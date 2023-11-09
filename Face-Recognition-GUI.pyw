@@ -38,7 +38,7 @@ def INIT_Camera_Window():
         Camera_Window.after(20, show_frames)
     show_frames()
 
-def Add_Face_Button_command():
+def Add_User():
     cam = cv2.VideoCapture(0)
     cam.set(3, 640)
     cam.set(4, 480)
@@ -67,7 +67,7 @@ def Add_Face_Button_command():
     cam.release()
     cv2.destroyAllWindows()
 
-def Train_Faces_Button_command():
+def Train_Faces():
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     def getImagesAndLabels(path):
         imagePaths = [os.path.join(path,f) for f in os.listdir(path)]     
@@ -87,7 +87,7 @@ def Train_Faces_Button_command():
     recognizer.write(trainedPath + '/trained.yml')
     tkinter.messagebox.showinfo(title='Training Completed', message='Training Completed. {0} Faces Trained.'.format(len(numpy.unique(ids))))
 
-def Recognize_Faces_Button_command():
+def Recognize_Faces():
     tkinter.messagebox.showinfo(title='Starting Recognizer', message='When you are ready press OK to start the Recognizer. When you are done use the ESC Button to Close the Recognizer Window.')
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     recognizer.read(trainedPath + '/trained.yml')
@@ -136,14 +136,14 @@ Title_Label_FR["justify"] = "center"
 Title_Label_FR["text"] = "Face\nRecognition"
 Title_Label_FR.place(x=20, y=100, width=250, height=80)
 
-Add_Face_Button = tkinter.Button(root)
-Add_Face_Button["bg"] = "#f0f0f0"
-Add_Face_Button["font"] = tkinter.font.Font(size=10)
-Add_Face_Button["fg"] = "#000000"
-Add_Face_Button["justify"] = "center"
-Add_Face_Button["text"] = "Add Face Data"
-Add_Face_Button.place(x=50, y=220, width=190, height=30)
-Add_Face_Button["command"] = Add_Face_Button_command
+Add_User_Button = tkinter.Button(root)
+Add_User_Button["bg"] = "#f0f0f0"
+Add_User_Button["font"] = tkinter.font.Font(size=10)
+Add_User_Button["fg"] = "#000000"
+Add_User_Button["justify"] = "center"
+Add_User_Button["text"] = "Add User"
+Add_User_Button.place(x=50, y=220, width=190, height=30)
+Add_User_Button["command"] = Add_User
 
 Train_Faces_Button = tkinter.Button(root)
 Train_Faces_Button["bg"] = "#f0f0f0"
@@ -152,7 +152,7 @@ Train_Faces_Button["fg"] = "#000000"
 Train_Faces_Button["justify"] = "center"
 Train_Faces_Button["text"] = "Train Faces"
 Train_Faces_Button.place(x=50, y=265, width=190, height=30)
-Train_Faces_Button["command"] = Train_Faces_Button_command
+Train_Faces_Button["command"] = Train_Faces
 
 Recognize_Faces_Button = tkinter.Button(root)
 Recognize_Faces_Button["bg"] = "#f0f0f0"
@@ -161,7 +161,7 @@ Recognize_Faces_Button["fg"] = "#000000"
 Recognize_Faces_Button["justify"] = "center"
 Recognize_Faces_Button["text"] = "Recognize Faces"
 Recognize_Faces_Button.place(x=50, y=310, width=190, height=30)
-Recognize_Faces_Button["command"] = Recognize_Faces_Button_command
+Recognize_Faces_Button["command"] = Recognize_Faces
 
 Camera_Window = tkinter.Label(root)
 Camera_Window["bg"] = "#000000"
