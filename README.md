@@ -1,4 +1,5 @@
 # OpenCV Face Recognition
+Face Recognition using OpenCV and Python
 
 ## APT Install Command (Linux)
 ```sh
