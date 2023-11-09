@@ -42,10 +42,10 @@ def Add_User():
     cam = cv2.VideoCapture(0)
     cam.set(3, 640)
     cam.set(4, 480)
-    face_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID for Face Capture (Example: 00, 01, 02, ...)")
-    id_name = tkinter.simpledialog.askstring(title="Enter User Name", prompt="Enter the Name of the User")
+    user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID for Face Capture (Example: 00, 01, 02, ...)")
+    user_name = tkinter.simpledialog.askstring(title="Enter User Name", prompt="Enter the Name of the User")
     with open(trainedPath + '/names.txt', 'a') as names:
-        names.write(id_name)
+        names.write(user_name)
         names.write('\n')
     tkinter.messagebox.showinfo(title='Initializing Face Capture', message='When you are ready to start press OK and Look at the Camera.')
     count = 0
@@ -54,18 +54,24 @@ def Add_User():
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = faceDetectionCascade.detectMultiScale(gray, 1.3, 5)
         for (x,y,w,h) in faces:
-            cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)     
+            #cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)
             count += 1
-            cv2.imwrite(rawImagesPath + "/User." + str(face_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
-            cv2.imshow('Face Capture', img)
-        k = cv2.waitKey(100) & 0xff
-        if k == 27:
+            cv2.imwrite(rawImagesPath + "/User." + str(user_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
+            #cv2.imshow('Face Capture', img)
+        #k = cv2.waitKey(100) & 0xff
+        #if k == 27:
+        #    break
+        #elif count >= 30:
+        #    break
+        if count >= 30:
             break
-        elif count >= 30:
-            break
-    tkinter.messagebox.showinfo(title='Capture Complete', message='Face Data Captured Successfully.')
+    tkinter.messagebox.showinfo(title='Capture Complete', message='User Data Captured Successfully. Please Retrain Faces!')
     cam.release()
     cv2.destroyAllWindows()
+    if os.path.exists(trainedPath + '/trained.yml'):
+        Recognize_Faces()
+    else:
+        INIT_Camera_Window()
 
 def Train_Faces():
     recognizer = cv2.face.LBPHFaceRecognizer_create()
