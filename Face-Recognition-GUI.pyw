@@ -1,5 +1,6 @@
 import os
 import cv2
+import sys
 import numpy
 import tkinter
 import tkinter.font
@@ -186,6 +187,15 @@ Recognize_Faces_Button["justify"] = "center"
 Recognize_Faces_Button["text"] = "Recognize Faces"
 Recognize_Faces_Button.place(x=50, y=355, width=190, height=30)
 Recognize_Faces_Button["command"] = Recognize_Faces
+
+Exit_Button = tkinter.Button(root)
+Exit_Button["bg"] = "#f0f0f0"
+Exit_Button["font"] = tkinter.font.Font(size=10)
+Exit_Button["fg"] = "#000000"
+Exit_Button["justify"] = "center"
+Exit_Button["text"] = "Exit"
+Exit_Button.place(x=50, y=400, width=190, height=30)
+Exit_Button["command"] = sys.exit
 
 Camera_Window = tkinter.Label(root)
 Camera_Window["bg"] = "#000000"
