@@ -12,11 +12,6 @@ pip install opencv-python opencv-contrib-python Pillow pyinstaller
 
 ## PyInstaller Commands
 ```sh
-pyinstaller .\Face-Recognition.py
-pyinstaller .\Face-Recognition.py --onefile
-pyinstaller .\Face-Recognition-GUI.py
-pyinstaller .\Face-Recognition-GUI.py --onefile
-pyinstaller .\Face-Recognition-GUI.py --onefile --windowed
-pyinstaller .\Face-Recognition-GUI.pyw
-pyinstaller .\Face-Recognition-GUI.pyw --onefile
+pyinstaller .\Face-Recognition.pyw
+pyinstaller .\Face-Recognition.pyw --onefile
 ```
