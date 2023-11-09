@@ -73,6 +73,19 @@ def Add_User():
     else:
         INIT_Camera_Window()
 
+def Remove_User():
+    user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID to be Removed (Example: 00, 01, 02, ...)")
+    with open(trainedPath + '/names.txt', 'r') as file:
+        names = file.read().splitlines()
+    names.pop(int(user_id))
+    with open(trainedPath + '/names.txt', 'w') as file:
+        for name in names:
+            file.write(name)
+            file.write('\n')
+    for count in range(30):
+        os.remove(rawImagesPath + "/User." + str(user_id) + '.' + str(count+1) + ".jpg")
+    tkinter.messagebox.showinfo(title='Removal Complete', message='User Data Removed Successfully. Please Retrain Faces!')
+
 def Train_Faces():
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     def getImagesAndLabels(path):
@@ -147,13 +160,22 @@ Add_User_Button["text"] = "Add User"
 Add_User_Button.place(x=50, y=220, width=190, height=30)
 Add_User_Button["command"] = Add_User
 
+Remove_User_Button = tkinter.Button(root)
+Remove_User_Button["bg"] = "#f0f0f0"
+Remove_User_Button["font"] = tkinter.font.Font(size=10)
+Remove_User_Button["fg"] = "#000000"
+Remove_User_Button["justify"] = "center"
+Remove_User_Button["text"] = "Remove User"
+Remove_User_Button.place(x=50, y=265, width=190, height=30)
+Remove_User_Button["command"] = Remove_User
+
 Train_Faces_Button = tkinter.Button(root)
 Train_Faces_Button["bg"] = "#f0f0f0"
 Train_Faces_Button["font"] = tkinter.font.Font(size=10)
 Train_Faces_Button["fg"] = "#000000"
 Train_Faces_Button["justify"] = "center"
 Train_Faces_Button["text"] = "Train Faces"
-Train_Faces_Button.place(x=50, y=265, width=190, height=30)
+Train_Faces_Button.place(x=50, y=310, width=190, height=30)
 Train_Faces_Button["command"] = Train_Faces
 
 Recognize_Faces_Button = tkinter.Button(root)
@@ -162,7 +184,7 @@ Recognize_Faces_Button["font"] = tkinter.font.Font(size=10)
 Recognize_Faces_Button["fg"] = "#000000"
 Recognize_Faces_Button["justify"] = "center"
 Recognize_Faces_Button["text"] = "Recognize Faces"
-Recognize_Faces_Button.place(x=50, y=310, width=190, height=30)
+Recognize_Faces_Button.place(x=50, y=355, width=190, height=30)
 Recognize_Faces_Button["command"] = Recognize_Faces
 
 Camera_Window = tkinter.Label(root)
