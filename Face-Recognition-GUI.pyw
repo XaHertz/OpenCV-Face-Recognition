@@ -6,6 +6,7 @@ import tkinter.font
 import tkinter.messagebox
 import tkinter.simpledialog
 import PIL.Image
+import PIL.ImageTk
 
 rawImagesPath = "dataset.images"
 trainedPath = "dataset.trained"
@@ -20,6 +21,22 @@ root = tkinter.Tk()
 root.title("Face Recognition")
 root.geometry('952x522')
 root.resizable(width=False, height=False)
+
+def INIT_Camera_Window():
+    cam = cv2.VideoCapture(0)
+    def show_frames():
+        ret, img = cam.read()
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = faceDetectionCascade.detectMultiScale(gray, 1.3, 5)
+        for(x,y,w,h) in faces:
+            cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
+        colored = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        imgx = PIL.Image.fromarray(colored)
+        imgtk = PIL.ImageTk.PhotoImage(image = imgx)
+        Camera_Window.imgtk = imgtk
+        Camera_Window.configure(image=imgtk)
+        Camera_Window.after(20, show_frames)
+    show_frames()
 
 def Add_Face_Button_command():
     cam = cv2.VideoCapture(0)
@@ -146,8 +163,9 @@ Recognize_Faces_Button["text"] = "Recognize Faces"
 Recognize_Faces_Button.place(x=50, y=310, width=190, height=30)
 Recognize_Faces_Button["command"] = Recognize_Faces_Button_command
 
-Recognize_Faces_Label = tkinter.Label(root)
-Recognize_Faces_Label["bg"] = "#000000"
-Recognize_Faces_Label.place(x=290, y=20, width=640, height=480)
+Camera_Window = tkinter.Label(root)
+Camera_Window["bg"] = "#000000"
+Camera_Window.place(x=290, y=20, width=640, height=480)
+INIT_Camera_Window()
 
 root.mainloop()
