@@ -43,11 +43,18 @@ def Add_User():
     cam = cv2.VideoCapture(0)
     cam.set(3, 640)
     cam.set(4, 480)
-    user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID for Face Capture (Example: 00, 01, 02, ...)")
+    user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID for Face Capture (Between 0-99)").zfill(2)
     user_name = tkinter.simpledialog.askstring(title="Enter User Name", prompt="Enter the Name of the User")
-    with open(trainedPath + '/names.txt', 'a') as names:
-        names.write(user_name)
-        names.write('\n')
+    if os.path.exists(trainedPath + '/names.txt'):
+        with open(trainedPath + '/names.txt', 'r') as file:
+            names = file.read().splitlines()
+    else:
+        names = [" "] * 100
+    names[int(user_id)] = user_name
+    with open(trainedPath + '/names.txt', 'w') as file:
+        for name in names:
+            file.write(name)
+            file.write('\n')
     tkinter.messagebox.showinfo(title='Initializing Face Capture', message='When you are ready to start press OK and Look at the Camera.')
     count = 0
     while(True):
@@ -68,10 +75,10 @@ def Add_User():
         INIT_Camera_Window()
 
 def Remove_User():
-    user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID to be Removed (Example: 00, 01, 02, ...)")
+    user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID to be Removed (Between 0-99)").zfill(2)
     with open(trainedPath + '/names.txt', 'r') as file:
         names = file.read().splitlines()
-    names.pop(int(user_id))
+    names[int(user_id)] = " "
     with open(trainedPath + '/names.txt', 'w') as file:
         for name in names:
             file.write(name)
