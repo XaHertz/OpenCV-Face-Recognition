@@ -1,5 +1,4 @@
 dist/
 build/
+dataset/
 *.spec
-dataset.images/
-dataset.trained/

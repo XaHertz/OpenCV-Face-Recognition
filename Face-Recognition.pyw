@@ -9,12 +9,13 @@ import tkinter.simpledialog
 import PIL.Image
 import PIL.ImageTk
 
-rawImagesPath = "dataset.images"
-trainedPath = "dataset.trained"
-if not os.path.exists(rawImagesPath):
-    os.makedirs(rawImagesPath)
-if not os.path.exists(trainedPath):
-    os.makedirs(trainedPath)
+imagesPath = "dataset/images"
+namesPath = "dataset/names.txt"
+trainedPath = "dataset/trained.yml"
+if not os.path.exists("dataset"):
+    os.makedirs("dataset")
+if not os.path.exists(imagesPath):
+    os.makedirs(imagesPath)
 
 faceDetectionCascade = cv2.CascadeClassifier('cascades/haarcascade_frontalface_default.xml')
 
@@ -45,13 +46,13 @@ def Add_User():
     cam.set(4, 480)
     user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID for Face Capture (Between 0-99)").zfill(2)
     user_name = tkinter.simpledialog.askstring(title="Enter User Name", prompt="Enter the Name of the User")
-    if os.path.exists(trainedPath + '/names.txt'):
-        with open(trainedPath + '/names.txt', 'r') as file:
+    if os.path.exists(namesPath):
+        with open(namesPath, 'r') as file:
             names = file.read().splitlines()
     else:
         names = [" "] * 100
     names[int(user_id)] = user_name
-    with open(trainedPath + '/names.txt', 'w') as file:
+    with open(namesPath, 'w') as file:
         for name in names:
             file.write(name)
             file.write('\n')
@@ -63,28 +64,28 @@ def Add_User():
         faces = faceDetectionCascade.detectMultiScale(gray, 1.3, 5)
         for (x,y,w,h) in faces:
             count += 1
-            cv2.imwrite(rawImagesPath + "/User." + str(user_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
+            cv2.imwrite(imagesPath + "/User." + str(user_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
         if count >= 30:
             break
     tkinter.messagebox.showinfo(title='Capture Complete', message='User Data Captured Successfully. Please Retrain Faces!')
     cam.release()
     cv2.destroyAllWindows()
-    if os.path.exists(trainedPath + '/trained.yml'):
+    if os.path.exists(trainedPath):
         Recognize_Faces()
     else:
         INIT_Camera_Window()
 
 def Remove_User():
     user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID to be Removed (Between 0-99)").zfill(2)
-    with open(trainedPath + '/names.txt', 'r') as file:
+    with open(namesPath, 'r') as file:
         names = file.read().splitlines()
     names[int(user_id)] = " "
-    with open(trainedPath + '/names.txt', 'w') as file:
+    with open(namesPath, 'w') as file:
         for name in names:
             file.write(name)
             file.write('\n')
     for count in range(30):
-        os.remove(rawImagesPath + "/User." + str(user_id) + '.' + str(count+1) + ".jpg")
+        os.remove(imagesPath + "/User." + str(user_id) + '.' + str(count+1) + ".jpg")
     tkinter.messagebox.showinfo(title='Removal Complete', message='User Data Removed Successfully. Please Retrain Faces!')
 
 def Train_Faces():
@@ -102,17 +103,17 @@ def Train_Faces():
                 faceSamples.append(img_numpy[y:y+h,x:x+w])
                 ids.append(id)
         return faceSamples,ids
-    faces, ids = getImagesAndLabels(rawImagesPath)
+    faces, ids = getImagesAndLabels(imagesPath)
     recognizer.train(faces, numpy.array(ids))
-    recognizer.write(trainedPath + '/trained.yml')
+    recognizer.write(trainedPath)
     tkinter.messagebox.showinfo(title='Training Completed', message='Training Completed. {0} Faces Trained.'.format(len(numpy.unique(ids))))
 
 def Recognize_Faces():
     recognizer = cv2.face.LBPHFaceRecognizer_create()
-    recognizer.read(trainedPath + '/trained.yml')
+    recognizer.read(trainedPath)
     font = cv2.FONT_HERSHEY_SIMPLEX
     id = 0
-    with open(trainedPath + '/names.txt', 'r') as file:
+    with open(namesPath, 'r') as file:
         names = file.read().splitlines()
     cam = cv2.VideoCapture(0)
     def show_frames():
