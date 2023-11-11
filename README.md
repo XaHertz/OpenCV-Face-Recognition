@@ -1,12 +1,13 @@
 # OpenCV Face Recognition
 Face Recognition using OpenCV and Python
 
-## APT Install Command (Linux)
-```sh
-sudo apt install python-is-python3 python3-pip python3-opencv python3-pillow python3-tk python3-pil.imagetk
-```
+## Requirements
+- Python with Tkinter
+- OpenCV and OpenCV Contrib
+- Pillow
+- PyInstaller
 
-## PIP Install Command (All Platforms)
+## PIP Install Command
 ```sh
 pip install opencv-python opencv-contrib-python Pillow pyinstaller
 ```

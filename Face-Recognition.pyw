@@ -41,100 +41,139 @@ def INIT_Camera_Window():
     show_frames()
 
 def Add_User():
-    cam = cv2.VideoCapture(0)
-    cam.set(3, 640)
-    cam.set(4, 480)
-    user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID for Face Capture (Between 0-99)").zfill(2)
-    user_name = tkinter.simpledialog.askstring(title="Enter User Name", prompt="Enter the Name of the User")
-    if os.path.exists(namesPath):
-        with open(namesPath, 'r') as file:
-            names = file.read().splitlines()
-    else:
-        names = [" "] * 100
-    names[int(user_id)] = user_name
-    with open(namesPath, 'w') as file:
-        for name in names:
-            file.write(name)
-            file.write('\n')
-    tkinter.messagebox.showinfo(title='Initializing Face Capture', message='When you are ready to start press OK and Look at the Camera.')
-    count = 0
-    while(True):
-        ret, img = cam.read()
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        faces = faceDetectionCascade.detectMultiScale(gray, 1.3, 5)
-        for (x,y,w,h) in faces:
-            count += 1
-            cv2.imwrite(imagesPath + "/User." + str(user_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
-        if count >= 30:
-            break
-    tkinter.messagebox.showinfo(title='Capture Complete', message='User Data Captured Successfully. Please Retrain Faces!')
-    cam.release()
-    cv2.destroyAllWindows()
-    if os.path.exists(trainedPath):
-        Recognize_Faces()
-    else:
-        INIT_Camera_Window()
+    try:
+        cam = cv2.VideoCapture(0)
+        user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID for Face Capture (Between 0-99)")
+        if user_id == None:
+            return
+        elif user_id == '':
+            tkinter.messagebox.showerror(title='Blank User ID', message='User ID cannot be Blank. Please Enter a valid User ID (Between 0-99) to Proceed.')
+        elif 0 <= int(user_id) > 100:
+            tkinter.messagebox.showerror(title='Invalid User ID', message='The entered User ID is Invalid. Please Enter a valid User ID (Between 0-99) to Proceed.')
+        else:
+            user_name = tkinter.simpledialog.askstring(title="Enter User Name", prompt="Enter the Name of the User")
+            if user_name == None:
+                return
+            elif user_name == '' or user_name == ' ':
+                tkinter.messagebox.showerror(title='Blank User Name', message='User Name cannot be Blank. Please Enter a valid User Name to Proceed.')
+            else:
+                if os.path.exists(namesPath):
+                    with open(namesPath, 'r') as file:
+                        names = file.read().splitlines()
+                else:
+                    names = [" "] * 100
+                names[int(user_id)] = user_name
+                with open(namesPath, 'w') as file:
+                    for name in names:
+                        file.write(name)
+                        file.write('\n')
+                tkinter.messagebox.showinfo(title='Initializing Face Capture', message='When you are ready to start press OK and Look at the Camera.')
+                count = 0
+                while(True):
+                    ret, img = cam.read()
+                    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                    faces = faceDetectionCascade.detectMultiScale(gray, 1.3, 5)
+                    for (x,y,w,h) in faces:
+                        count += 1
+                        cv2.imwrite(imagesPath + "/User." + str(user_id).lstrip('0').zfill(2) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
+                    if count >= 30:
+                        break
+                tkinter.messagebox.showinfo(title='Capture Complete', message='User Data Captured Successfully. Please Retrain Faces!')
+                cam.release()
+                cv2.destroyAllWindows()
+                if os.path.exists(trainedPath):
+                    Recognize_Faces()
+                else:
+                    INIT_Camera_Window()
+    except ValueError:
+        tkinter.messagebox.showerror(title='Invalid User ID', message='The entered User ID has Non-numeric Characters. Please Enter a valid User ID (Between 0-99) to Proceed.')
 
 def Remove_User():
-    user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID to be Removed (Between 0-99)").zfill(2)
-    with open(namesPath, 'r') as file:
-        names = file.read().splitlines()
-    names[int(user_id)] = " "
-    with open(namesPath, 'w') as file:
-        for name in names:
-            file.write(name)
-            file.write('\n')
-    for count in range(30):
-        os.remove(imagesPath + "/User." + str(user_id) + '.' + str(count+1) + ".jpg")
-    tkinter.messagebox.showinfo(title='Removal Complete', message='User Data Removed Successfully. Please Retrain Faces!')
+    try:
+        if len(os.listdir(imagesPath)) == 0:
+            tkinter.messagebox.showerror(title='User List Empty', message='User List Empty. There are no Users to be Removed.')
+        else:
+            user_id = tkinter.simpledialog.askstring(title="Enter User ID", prompt="Enter an User ID to be Removed (Between 0-99)")
+            if user_id == None:
+                return
+            elif user_id == '':
+                tkinter.messagebox.showerror(title='Blank User ID', message='User ID cannot be Blank. Please Enter a valid User ID (Between 0-99) to Proceed.')
+            elif 0 <= int(user_id) > 100:
+                tkinter.messagebox.showerror(title='Invalid User ID', message='The entered User ID is Invalid. Please Enter a valid User ID (Between 0-99) to Proceed.')
+            elif not os.path.exists(imagesPath + "/User." + str(user_id).lstrip('0').zfill(2) + ".1.jpg"):
+                tkinter.messagebox.showerror(title='Removal Failed', message='Failed to Remove User Data. The User with the specified User ID does not Exist.')
+            else:
+                with open(namesPath, 'r') as file:
+                    names = file.read().splitlines()
+                names[int(user_id)] = " "
+                with open(namesPath, 'w') as file:
+                    for name in names:
+                        file.write(name)
+                        file.write('\n')
+                for count in range(30):
+                    os.remove(imagesPath + "/User." + str(user_id).lstrip('0').zfill(2) + '.' + str(count+1) + ".jpg")
+                tkinter.messagebox.showinfo(title='Removal Complete', message='User Data Removed Successfully. Please Retrain Faces!')
+    except ValueError:
+        tkinter.messagebox.showerror(title='Invalid User ID', message='The entered User ID has Non-numeric Characters. Please Enter a valid User ID (Between 0-99) to Proceed.')
 
 def Train_Faces():
-    recognizer = cv2.face.LBPHFaceRecognizer_create()
-    def getImagesAndLabels(path):
-        imagePaths = [os.path.join(path,f) for f in os.listdir(path)]     
-        faceSamples=[]
-        ids = []
-        for imagePath in imagePaths:
-            PIL_img = PIL.Image.open(imagePath).convert('L')
-            img_numpy = numpy.array(PIL_img,'uint8')
-            id = int(os.path.split(imagePath)[-1].split(".")[1])
-            faces = faceDetectionCascade.detectMultiScale(img_numpy)
-            for (x,y,w,h) in faces:
-                faceSamples.append(img_numpy[y:y+h,x:x+w])
-                ids.append(id)
-        return faceSamples,ids
-    faces, ids = getImagesAndLabels(imagesPath)
-    recognizer.train(faces, numpy.array(ids))
-    recognizer.write(trainedPath)
-    tkinter.messagebox.showinfo(title='Training Completed', message='Training Completed. {0} Faces Trained.'.format(len(numpy.unique(ids))))
+    if os.path.exists(trainedPath):
+        os.remove(trainedPath)
+    if len(os.listdir(imagesPath)) == 0:
+        tkinter.messagebox.showerror(title='Training Failed', message='Training Failed. There are no Faces to be Trained. Please Add a Face using Add User Option.')
+    else:
+        recognizer = cv2.face.LBPHFaceRecognizer_create()
+        def getImagesAndLabels(path):
+            imagePaths = [os.path.join(path,f) for f in os.listdir(path)]     
+            faceSamples=[]
+            ids = []
+            for imagePath in imagePaths:
+                PIL_img = PIL.Image.open(imagePath).convert('L')
+                img_numpy = numpy.array(PIL_img,'uint8')
+                id = int(os.path.split(imagePath)[-1].split(".")[1])
+                faces = faceDetectionCascade.detectMultiScale(img_numpy)
+                for (x,y,w,h) in faces:
+                    faceSamples.append(img_numpy[y:y+h,x:x+w])
+                    ids.append(id)
+            return faceSamples,ids
+        faces, ids = getImagesAndLabels(imagesPath)
+        recognizer.train(faces, numpy.array(ids))
+        recognizer.write(trainedPath)
+        tkinter.messagebox.showinfo(title='Training Completed', message='Training Completed. {0} Faces Trained.'.format(len(numpy.unique(ids))))
 
 def Recognize_Faces():
-    recognizer = cv2.face.LBPHFaceRecognizer_create()
-    recognizer.read(trainedPath)
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    id = 0
-    with open(namesPath, 'r') as file:
-        names = file.read().splitlines()
-    cam = cv2.VideoCapture(0)
-    def show_frames():
-        ret, img = cam.read()
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        faces = faceDetectionCascade.detectMultiScale(gray, scaleFactor = 1.2, minNeighbors = 5, minSize = (64, 48))
-        for(x,y,w,h) in faces:
-            cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
-            id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
-            if (confidence < 100):
-                id = names[id]
-            else:
-                id = "unknown"
-            cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
-        colored = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        imgx = PIL.Image.fromarray(colored)
-        imgtk = PIL.ImageTk.PhotoImage(image = imgx)
-        Camera_Window.imgtk = imgtk
-        Camera_Window.configure(image=imgtk)
-        Camera_Window.after(20, show_frames)
-    show_frames()
+    if not os.path.exists(trainedPath):
+        tkinter.messagebox.showerror(title='Recognition Unsucessful', message='Trained Dataset is Empty. Please Add and Train some Faces.')
+        INIT_Camera_Window()
+    else:
+        recognizer = cv2.face.LBPHFaceRecognizer_create()
+        recognizer.read(trainedPath)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        id = 0
+        with open(namesPath, 'r') as file:
+            names = file.read().splitlines()
+        cam = cv2.VideoCapture(0)
+        def show_frames():
+            ret, img = cam.read()
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            faces = faceDetectionCascade.detectMultiScale(gray, scaleFactor = 1.2, minNeighbors = 5, minSize = (64, 48))
+            for(x,y,w,h) in faces:
+                cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
+                id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
+                if (confidence < 100):
+                    id = names[id]
+                else:
+                    id = "unknown"
+                if id == " ":
+                    id = "unknown"
+                cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
+            colored = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            imgx = PIL.Image.fromarray(colored)
+            imgtk = PIL.ImageTk.PhotoImage(image = imgx)
+            Camera_Window.imgtk = imgtk
+            Camera_Window.configure(image=imgtk)
+            Camera_Window.after(20, show_frames)
+        show_frames()
 
 Title_Label_CV = tkinter.Label(root)
 Title_Label_CV["font"] = tkinter.font.Font(size=40)
