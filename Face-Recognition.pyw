@@ -51,7 +51,7 @@ def Add_User():
         elif 0 <= int(user_id) > 100:
             tkinter.messagebox.showerror(title='Invalid User ID', message='The entered User ID is Invalid. Please Enter a valid User ID (Between 0-99) to Proceed.')
         else:
-            user_name = tkinter.simpledialog.askstring(title="Enter User Name", prompt="Enter the Name of the User")
+            user_name = tkinter.simpledialog.askstring(title="Enter User Name", prompt="Enter the Name of the User").strip(' ')
             if user_name == None:
                 return
             elif user_name == '' or user_name == ' ':
